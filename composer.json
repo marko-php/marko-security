@@ -12,6 +12,7 @@
         "marko/encryption": "self.version"
     },
     "require-dev": {
+        "marko/cors": "self.version",
         "marko/testing": "self.version"
     },
     "autoload": {
