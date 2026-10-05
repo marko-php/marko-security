@@ -106,18 +106,4 @@ final class Helpers
             'security.headers.content_security_policy' => "default-src 'self'",
         ], $overrides);
     }
-
-    /**
-     * @param array<string, mixed> $overrides
-     * @return array<string, mixed>
-     */
-    public static function defaultCorsConfig(array $overrides = []): array
-    {
-        return array_merge([
-            'security.cors.allowed_origins' => ['https://example.com'],
-            'security.cors.allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-            'security.cors.allowed_headers' => ['Content-Type', 'X-Requested-With', 'X-CSRF-TOKEN'],
-            'security.cors.max_age' => 86400,
-        ], $overrides);
-    }
 }

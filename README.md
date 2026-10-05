@@ -1,6 +1,6 @@
 # marko/security
 
-CSRF protection, CORS handling, and security headers middleware -- secure your routes with drop-in middleware.
+CSRF protection and security headers middleware -- secure your routes with drop-in middleware. For CORS, use [marko/cors](https://marko.build/docs/packages/cors/).
 
 ## Installation
 

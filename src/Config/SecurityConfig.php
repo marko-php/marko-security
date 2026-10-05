@@ -17,35 +17,6 @@ readonly class SecurityConfig
         return $this->config->getString('security.csrf.session_key');
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function corsAllowedOrigins(): array
-    {
-        return $this->config->getArray('security.cors.allowed_origins');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function corsAllowedMethods(): array
-    {
-        return $this->config->getArray('security.cors.allowed_methods');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function corsAllowedHeaders(): array
-    {
-        return $this->config->getArray('security.cors.allowed_headers');
-    }
-
-    public function corsMaxAge(): int
-    {
-        return $this->config->getInt('security.cors.max_age');
-    }
-
     public function headerXContentTypeOptions(): string
     {
         return $this->config->getString('security.headers.x_content_type_options');

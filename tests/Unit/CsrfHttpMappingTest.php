@@ -58,6 +58,7 @@ function csrfPipeline(): MiddlewarePipeline
         'cors.expose_headers' => [],
         'cors.supports_credentials' => false,
         'cors.max_age' => 0,
+        'cors.paths' => ['*'],
     ]))));
     $container->instance(CsrfMiddleware::class, new CsrfMiddleware(new RejectingTokenManager()));
 

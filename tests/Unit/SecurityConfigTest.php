@@ -6,18 +6,17 @@ use Marko\Security\Config\SecurityConfig;
 use Marko\Testing\Fake\FakeConfigRepository;
 
 describe('SecurityConfig', function (): void {
-    it('creates SecurityConfig with CORS settings from config repository', function (): void {
-        $config = new SecurityConfig(new FakeConfigRepository([
-            'security.cors.allowed_origins' => ['https://example.com'],
-            'security.cors.allowed_methods' => ['GET', 'POST'],
-            'security.cors.allowed_headers' => ['Content-Type'],
-            'security.cors.max_age' => 3600,
-        ]));
+    it('has no CORS getters because marko/cors owns CORS', function (): void {
+        $methods = array_map(
+            fn (ReflectionMethod $method): string => $method->getName(),
+            new ReflectionClass(SecurityConfig::class)->getMethods(),
+        );
 
-        expect($config->corsAllowedOrigins())->toBe(['https://example.com'])
-            ->and($config->corsAllowedMethods())->toBe(['GET', 'POST'])
-            ->and($config->corsAllowedHeaders())->toBe(['Content-Type'])
-            ->and($config->corsMaxAge())->toBe(3600);
+        expect(array_filter($methods, fn (string $name): bool => str_starts_with($name, 'cors')))->toBeEmpty();
+    });
+
+    it('does not ship a CORS middleware in marko/security', function (): void {
+        expect(file_exists(dirname(__DIR__, 2) . '/src/Middleware/CorsMiddleware.php'))->toBeFalse();
     });
 
     it('creates SecurityConfig with headers settings from config repository', function (): void {
@@ -48,12 +47,12 @@ describe('SecurityConfig', function (): void {
 
     it('uses FakeConfigRepository instead of inline config stub in SecurityConfigTest', function (): void {
         $repo = new FakeConfigRepository([
-            'security.cors.allowed_origins' => ['*'],
+            'security.csrf.session_key' => '_token',
         ]);
         $config = new SecurityConfig($repo);
 
         expect($repo)->toBeInstanceOf(FakeConfigRepository::class)
-            ->and($config->corsAllowedOrigins())->toBe(['*']);
+            ->and($config->csrfSessionKey())->toBe('_token');
     });
 });
 
@@ -94,12 +93,7 @@ describe('config/security.php', function (): void {
             ->and($config)->toHaveKey('csrf')
             ->and($config['csrf'])->toHaveKey('session_key')
             ->and($config['csrf']['session_key'])->toBe('_csrf_token')
-            ->and($config)->toHaveKey('cors')
-            ->and($config['cors'])->toHaveKey('allowed_origins')
-            ->and($config['cors'])->toHaveKey('allowed_methods')
-            ->and($config['cors'])->toHaveKey('allowed_headers')
-            ->and($config['cors'])->toHaveKey('max_age')
-            ->and($config['cors']['max_age'])->toBe(86400)
+            ->and($config)->not->toHaveKey('cors')
             ->and($config)->toHaveKey('headers')
             ->and($config['headers'])->toHaveKey('x_content_type_options')
             ->and($config['headers']['x_content_type_options'])->toBe('nosniff')

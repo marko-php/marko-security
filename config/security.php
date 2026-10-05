@@ -6,12 +6,6 @@ return [
     'csrf' => [
         'session_key' => '_csrf_token',
     ],
-    'cors' => [
-        'allowed_origins' => [],
-        'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        'allowed_headers' => ['Content-Type', 'X-Requested-With', 'X-CSRF-TOKEN'],
-        'max_age' => 86400,
-    ],
     'headers' => [
         'x_content_type_options' => 'nosniff',
         'x_frame_options' => 'SAMEORIGIN',
