@@ -17,6 +17,7 @@ function createStubEncryptor(): EncryptorInterface
 
         public function encrypt(
             string $value,
+            string $aad = '',
         ): string {
             $this->counter++;
 
@@ -25,6 +26,7 @@ function createStubEncryptor(): EncryptorInterface
 
         public function decrypt(
             string $encrypted,
+            string $aad = '',
         ): string {
             return 'decrypted_' . $encrypted;
         }
