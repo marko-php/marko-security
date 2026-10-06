@@ -10,19 +10,20 @@ composer require marko/security
 
 ## Quick Example
 
+`CsrfMiddleware` is registered globally, so every state-changing route is protected. Opt a route out explicitly:
+
 ```php
 use Marko\Routing\Attributes\Post;
-use Marko\Routing\Attributes\Middleware;
+use Marko\Routing\Attributes\WithoutMiddleware;
 use Marko\Security\Middleware\CsrfMiddleware;
 
-class FormController
+class WebhookController
 {
-    #[Post('/contact')]
-    #[Middleware(CsrfMiddleware::class)]
-    public function submit(): Response
+    #[Post('/webhooks/stripe')]
+    #[WithoutMiddleware(CsrfMiddleware::class)]
+    public function receive(): Response
     {
-        // Token validated automatically
-        return new Response('Submitted');
+        return new Response('Received');
     }
 }
 ```

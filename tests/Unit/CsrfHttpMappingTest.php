@@ -16,6 +16,7 @@ use Marko\Routing\Middleware\MiddlewarePipeline;
 use Marko\Security\Contracts\CsrfTokenManagerInterface;
 use Marko\Security\Exceptions\CsrfTokenMismatchException;
 use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Security\Tests\Helpers;
 use Marko\Testing\Fake\FakeConfigRepository;
 
 class OuterHeaderMiddleware implements MiddlewareInterface
@@ -60,7 +61,7 @@ function csrfPipeline(): MiddlewarePipeline
         'cors.max_age' => 0,
         'cors.paths' => ['*'],
     ]))));
-    $container->instance(CsrfMiddleware::class, new CsrfMiddleware(new RejectingTokenManager()));
+    $container->instance(CsrfMiddleware::class, Helpers::createCsrfMiddleware(new RejectingTokenManager()));
 
     return new MiddlewarePipeline($container);
 }

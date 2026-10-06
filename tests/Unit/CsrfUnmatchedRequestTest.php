@@ -14,6 +14,7 @@ use Marko\Routing\RouteMatcher;
 use Marko\Routing\Router;
 use Marko\Security\Contracts\CsrfTokenManagerInterface;
 use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Security\Tests\Helpers;
 
 class StoredTokenManager implements CsrfTokenManagerInterface
 {
@@ -67,7 +68,7 @@ function csrfRouter(): Router
     ));
 
     $container = new Container(new PreferenceRegistry());
-    $container->instance(CsrfMiddleware::class, new CsrfMiddleware(new StoredTokenManager()));
+    $container->instance(CsrfMiddleware::class, Helpers::createCsrfMiddleware(new StoredTokenManager()));
     $container->instance(CsrfUnmatchedController::class, new CsrfUnmatchedController());
 
     return new Router(

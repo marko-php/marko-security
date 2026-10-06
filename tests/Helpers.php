@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace Marko\Security\Tests;
 
+use Marko\Routing\Http\Cookie;
 use Marko\Routing\Http\Response;
 use Marko\Security\Config\SecurityConfig;
+use Marko\Security\Contracts\CsrfTokenManagerInterface;
+use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Session\Config\SessionConfig;
+use Marko\Session\Contracts\SessionInterface;
 use Marko\Testing\Fake\FakeConfigRepository;
+use Marko\Testing\Fake\FakeSession;
 
 /**
  * A `Response` subclass carrying extra state, used to prove that middleware
@@ -81,6 +87,68 @@ final class Helpers
         array $headers = [],
     ): StreamingLikeResponse {
         return new StreamingLikeResponse($chunks, $statusCode, $headers);
+    }
+
+    public const string SESSION_COOKIE = 'marko_session';
+
+    public const string SESSION_ID = 'resumed-session-id';
+
+    /**
+     * A started session with id SESSION_ID, as SessionMiddleware leaves it
+     * for a request carrying that session cookie.
+     */
+    public static function createResumedSession(): FakeSession
+    {
+        $session = new FakeSession();
+        $session->setId(self::SESSION_ID);
+        $session->start();
+
+        return $session;
+    }
+
+    /**
+     * Cookies of a request that resumes createResumedSession().
+     *
+     * @return array<string, string>
+     */
+    public static function resumedSessionCookies(): array
+    {
+        return [self::SESSION_COOKIE => self::SESSION_ID];
+    }
+
+    /**
+     * A CsrfMiddleware over a started FakeSession (or the given session) and
+     * session cookie config that defaults to the shipped session.php values.
+     *
+     * @param array<string, mixed> $sessionCookieConfig
+     */
+    public static function createCsrfMiddleware(
+        CsrfTokenManagerInterface $tokenManager,
+        ?SessionInterface $session = null,
+        array $sessionCookieConfig = [],
+    ): CsrfMiddleware {
+        return new CsrfMiddleware(
+            tokenManager: $tokenManager,
+            session: $session ?? self::createResumedSession(),
+            sessionConfig: new SessionConfig(new FakeConfigRepository(array_merge([
+                'session.cookie.name' => self::SESSION_COOKIE,
+                'session.cookie.path' => '/',
+                'session.cookie.domain' => '',
+                'session.cookie.secure' => true,
+            ], $sessionCookieConfig))),
+        );
+    }
+
+    public static function findXsrfCookie(
+        Response $response,
+    ): ?Cookie {
+        foreach ($response->cookies() as $cookie) {
+            if ($cookie->name() === CsrfMiddleware::COOKIE_NAME) {
+                return $cookie;
+            }
+        }
+
+        return null;
     }
 
     /**

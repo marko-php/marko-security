@@ -2,8 +2,16 @@
 
 declare(strict_types=1);
 
+use Marko\Core\Container\Container;
+use Marko\Core\Container\PreferenceRegistry;
+use Marko\Encryption\Contracts\EncryptorInterface;
 use Marko\Security\Config\SecurityConfig;
+use Marko\Security\Contracts\CsrfTokenManagerInterface;
+use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Security\Tests\Helpers;
+use Marko\Session\Contracts\SessionInterface;
 use Marko\Testing\Fake\FakeConfigRepository;
+use Marko\Testing\Fake\FakeSession;
 
 describe('SecurityConfig', function (): void {
     it('has no CORS getters because marko/cors owns CORS', function (): void {
@@ -80,6 +88,29 @@ describe('module.php', function (): void {
             ->and($module)->toBeArray()
             ->and($module)->toHaveKey('bindings')
             ->and($module['bindings'])->toHaveKey('Marko\Security\Contracts\CsrfTokenManagerInterface');
+    });
+
+    it('registers CsrfMiddleware as global middleware after the session drivers', function (): void {
+        $module = require dirname(__DIR__, 2) . '/module.php';
+
+        expect($module['globalMiddleware'])->toBe([CsrfMiddleware::class])
+            ->and($module['sequence']['after'])->toContain('marko/session-file', 'marko/session-database');
+    });
+
+    it('builds CsrfTokenManager with the configured security.csrf.session_key', function (): void {
+        $module = require dirname(__DIR__, 2) . '/module.php';
+        $session = new FakeSession();
+        $container = new Container(new PreferenceRegistry());
+        $container->instance(SessionInterface::class, $session);
+        $container->instance(EncryptorInterface::class, $this->createStub(EncryptorInterface::class));
+        $container->instance(SecurityConfig::class, Helpers::createSecurityConfig([
+            'security.csrf.session_key' => '_custom_csrf',
+        ]));
+
+        $token = $module['bindings'][CsrfTokenManagerInterface::class]($container)->get();
+
+        expect($session->get('_custom_csrf'))->toBe($token)
+            ->and($session->has('_csrf_token'))->toBeFalse();
     });
 });
 

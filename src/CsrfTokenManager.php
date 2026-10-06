@@ -10,16 +10,18 @@ use Marko\Session\Contracts\SessionInterface;
 
 class CsrfTokenManager implements CsrfTokenManagerInterface
 {
-    private const string SESSION_KEY = '_csrf_token';
-
+    /**
+     * @param string $sessionKey Session key holding the token (security.csrf.session_key)
+     */
     public function __construct(
         private readonly SessionInterface $session,
         private readonly EncryptorInterface $encryptor,
+        private readonly string $sessionKey = '_csrf_token',
     ) {}
 
     public function get(): string
     {
-        $existing = $this->session->get(self::SESSION_KEY);
+        $existing = $this->session->get($this->sessionKey);
 
         if ($existing !== null) {
             return (string) $existing;
@@ -31,7 +33,7 @@ class CsrfTokenManager implements CsrfTokenManagerInterface
     public function validate(
         string $token,
     ): bool {
-        $stored = $this->session->get(self::SESSION_KEY);
+        $stored = $this->session->get($this->sessionKey);
 
         if ($stored === null) {
             return false;
@@ -50,7 +52,7 @@ class CsrfTokenManager implements CsrfTokenManagerInterface
         $randomBytes = random_bytes(32);
         $token = $this->encryptor->encrypt($randomBytes);
 
-        $this->session->set(self::SESSION_KEY, $token);
+        $this->session->set($this->sessionKey, $token);
 
         return $token;
     }

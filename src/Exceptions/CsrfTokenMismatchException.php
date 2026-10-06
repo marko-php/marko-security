@@ -16,7 +16,7 @@ class CsrfTokenMismatchException extends SecurityException implements HttpExcept
         return new self(
             message: 'CSRF token validation failed.',
             context: 'The submitted CSRF token does not match the token stored in the session. This can happen when the session has expired, the token was not included in the request, or the token has been tampered with.',
-            suggestion: 'Ensure your form includes a valid CSRF token field (_token) or X-CSRF-TOKEN header. If the session has expired, refresh the page to get a new token.',
+            suggestion: 'Ensure your form includes a valid CSRF token field (_token), or send it in the X-CSRF-TOKEN or X-XSRF-TOKEN header. If the session has expired, refresh the page to get a new token. Routes that cannot carry a token (webhooks, token-authenticated APIs) opt out with #[WithoutMiddleware(CsrfMiddleware::class)].',
         );
     }
 
