@@ -12,8 +12,12 @@
         "marko/encryption": "self.version"
     },
     "require-dev": {
+        "marko/authentication": "self.version",
         "marko/cors": "self.version",
         "marko/testing": "self.version"
+    },
+    "suggest": {
+        "marko/authentication": "Rotates the CSRF token on login and logout"
     },
     "autoload": {
         "psr-4": {
