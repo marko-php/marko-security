@@ -26,12 +26,14 @@ function csrfRotationManager(
     {
         public function encrypt(
             string $value,
+            string $aad = '',
         ): string {
             return 'encrypted_' . bin2hex($value);
         }
 
         public function decrypt(
             string $encrypted,
+            string $aad = '',
         ): string {
             return $encrypted;
         }
