@@ -10,36 +10,19 @@ use Marko\Core\Container\Container;
 use Marko\Core\Event\EventDispatcher;
 use Marko\Core\Event\ObserverDefinition;
 use Marko\Core\Event\ObserverRegistry;
-use Marko\Encryption\Contracts\EncryptorInterface;
 use Marko\Security\Contracts\CsrfTokenManagerInterface;
 use Marko\Security\CsrfTokenManager;
 use Marko\Security\Observer\RotateCsrfTokenOnLogin;
 use Marko\Security\Observer\RotateCsrfTokenOnLogout;
 use Marko\Testing\Fake\FakeAuthenticatable;
+use Marko\Testing\Fake\FakeEncryptor;
 use Marko\Testing\Fake\FakeSession;
 use Marko\Testing\Fake\FakeUserProvider;
 
 function csrfRotationManager(
     FakeSession $session,
 ): CsrfTokenManager {
-    $encryptor = new class () implements EncryptorInterface
-    {
-        public function encrypt(
-            string $value,
-            string $aad = '',
-        ): string {
-            return 'encrypted_' . bin2hex($value);
-        }
-
-        public function decrypt(
-            string $encrypted,
-            string $aad = '',
-        ): string {
-            return $encrypted;
-        }
-    };
-
-    return new CsrfTokenManager($session, $encryptor);
+    return new CsrfTokenManager($session, new FakeEncryptor());
 }
 
 /**
