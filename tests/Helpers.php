@@ -168,7 +168,7 @@ final class Helpers
         return array_merge([
             'security.headers.x_content_type_options' => 'nosniff',
             'security.headers.x_frame_options' => 'SAMEORIGIN',
-            'security.headers.x_xss_protection' => '1; mode=block',
+            'security.headers.x_xss_protection' => '0',
             'security.headers.strict_transport_security' => 'max-age=31536000; includeSubDomains',
             'security.headers.referrer_policy' => 'strict-origin-when-cross-origin',
             'security.headers.content_security_policy' => "default-src 'self'",

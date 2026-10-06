@@ -8,6 +8,7 @@ use Marko\Encryption\Contracts\EncryptorInterface;
 use Marko\Security\Config\SecurityConfig;
 use Marko\Security\Contracts\CsrfTokenManagerInterface;
 use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Security\Middleware\SecurityHeadersMiddleware;
 use Marko\Security\Tests\Helpers;
 use Marko\Session\Contracts\SessionInterface;
 use Marko\Testing\Fake\FakeConfigRepository;
@@ -90,10 +91,12 @@ describe('module.php', function (): void {
             ->and($module['bindings'])->toHaveKey('Marko\Security\Contracts\CsrfTokenManagerInterface');
     });
 
-    it('registers CsrfMiddleware as global middleware after the session drivers', function (): void {
+    it('registers the security middleware globally after the session drivers', function (): void {
         $module = require dirname(__DIR__, 2) . '/module.php';
 
-        expect($module['globalMiddleware'])->toBe([CsrfMiddleware::class])
+        // SecurityHeadersMiddleware is listed first so it wraps CsrfMiddleware
+        // and also decorates the 419 a token mismatch renders.
+        expect($module['globalMiddleware'])->toBe([SecurityHeadersMiddleware::class, CsrfMiddleware::class])
             ->and($module['sequence']['after'])->toContain('marko/session-file', 'marko/session-database');
     });
 
@@ -134,5 +137,13 @@ describe('config/security.php', function (): void {
             ->and($config['headers'])->toHaveKey('strict_transport_security')
             ->and($config['headers'])->toHaveKey('referrer_policy')
             ->and($config['headers'])->toHaveKey('content_security_policy');
+    });
+
+    it('disables the legacy browser XSS auditor by default', function (): void {
+        $config = require dirname(__DIR__, 2) . '/config/security.php';
+
+        // "1; mode=block" is deprecated and enabled XS-Leak attacks in the
+        // browsers that still honoured it; OWASP and MDN recommend "0".
+        expect($config['headers']['x_xss_protection'])->toBe('0');
     });
 });

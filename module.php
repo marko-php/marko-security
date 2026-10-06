@@ -8,6 +8,7 @@ use Marko\Security\Config\SecurityConfig;
 use Marko\Security\Contracts\CsrfTokenManagerInterface;
 use Marko\Security\CsrfTokenManager;
 use Marko\Security\Middleware\CsrfMiddleware;
+use Marko\Security\Middleware\SecurityHeadersMiddleware;
 use Marko\Session\Contracts\SessionInterface;
 
 return [
@@ -26,8 +27,12 @@ return [
         },
     ],
     // Every matched route is protected; opt a route out with
-    // #[WithoutMiddleware(CsrfMiddleware::class)].
+    // #[WithoutMiddleware(CsrfMiddleware::class)] or
+    // #[WithoutMiddleware(SecurityHeadersMiddleware::class)].
+    // SecurityHeadersMiddleware comes first so it wraps CsrfMiddleware and
+    // also decorates the 419 a token mismatch renders.
     'globalMiddleware' => [
+        SecurityHeadersMiddleware::class,
         CsrfMiddleware::class,
     ],
 ];

@@ -10,7 +10,7 @@ composer require marko/security
 
 ## Quick Example
 
-`CsrfMiddleware` is registered globally, so every state-changing route is protected. Opt a route out explicitly:
+`CsrfMiddleware` and `SecurityHeadersMiddleware` are registered globally, so every state-changing route is protected and every response carries security headers. Opt a route out explicitly:
 
 ```php
 use Marko\Routing\Attributes\Post;
